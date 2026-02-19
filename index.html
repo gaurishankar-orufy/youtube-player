@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; background: black; overflow: hidden; }
+        #player {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="player"></div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        var player;
+
+        function onYouTubeIframeAPIReady() { }
+
+        function loadVideo(videoID, autoplay, muted) {
+            if (player) { player.destroy(); }
+
+            player = new YT.Player('player', {
+                videoId: videoID,
+                host: 'https://www.youtube.com',
+                playerVars: {
+                    autoplay: autoplay,
+                    mute: muted,
+                    playsinline: 1,
+                    rel: 0,
+                    showinfo: 0,
+                    controls: 1,
+                    modestbranding: 1,
+                    origin: 'https://www.youtube.com'
+                },
+                events: {
+                    onReady: function(event) {
+                        if (autoplay === 1) { event.target.playVideo(); }
+                        if (window.webkit && window.webkit.messageHandlers.playerReady) {
+                            window.webkit.messageHandlers.playerReady.postMessage("ready");
+                        }
+                    },
+                    onStateChange: function(event) {
+                        if (window.webkit && window.webkit.messageHandlers.playerState) {
+                            window.webkit.messageHandlers.playerState.postMessage(event.data);
+                        }
+                    },
+                    onError: function(event) {
+                        if (window.webkit && window.webkit.messageHandlers.playerError) {
+                            window.webkit.messageHandlers.playerError.postMessage(event.data);
+                        }
+                    }
+                }
+            });
+        }
+
+        function playVideo()         { if (player) player.playVideo(); }
+        function pauseVideo()        { if (player) player.pauseVideo(); }
+        function stopVideo()         { if (player) player.stopVideo(); }
+        function muteVideo()         { if (player) player.mute(); }
+        function unmuteVideo()       { if (player) player.unMute(); }
+        function seekTo(seconds)     { if (player) player.seekTo(seconds, true); }
+    </script>
+</body>
+</html>
